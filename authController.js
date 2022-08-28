@@ -20,7 +20,7 @@ class authController {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json(errors);
       if (req.body.isPsychologist) {
-        const userWithExistEmail = await checkEmail([Patient, Psychologist, Admin], req.body.email);
+        const userWithExistEmail = await checkEmail(req.body.email);
         if (userWithExistEmail) return res.status(400).json({ message: 'User with this email already registered' });
         const psychologistRole = await Role.findOne({ value: 'PSYCHOLOGIST' });
         const psychologist = new Psychologist({
@@ -36,9 +36,8 @@ class authController {
         const patientName = await Patient.findOne({ nickname: req.body.nickname });
         if (patientName) return res.status(400).json({ message: 'User with this nickname already registered' });
         const userWithExistEmail = await checkEmail(req.body.email);
-        console.log({ userWithExistEmail });
         if (userWithExistEmail) return res.status(400).json({ message: 'User with this email already registered' });
-        const patientRole = await Role.findOne({ value: 'ADMIN' });
+        const patientRole = await Role.findOne({ value: 'PATIENT' });
         const patient = new Patient({
           password: bcrypt.hashSync(req.body.password, 7),
           nickname: req.body.nickname,

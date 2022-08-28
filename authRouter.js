@@ -2,6 +2,7 @@ import { Router } from 'express';
 import controller from './authController.js';
 import { check } from 'express-validator';
 import authMiddleware from './middleware/authMiddleware.js';
+import roleMiddleware from './middleware/roleMiddleware.js';
 
 const router = new Router();
 
@@ -23,8 +24,8 @@ router.post(
   controller.registration
 );
 router.post('/login', controller.login);
-router.get('/users', authMiddleware, controller.getUsers);
-router.get('/patients', controller.getPatients);
-router.get('/psychologists', controller.getPsychologist);
+router.get('/users', [authMiddleware, roleMiddleware(['ADMIN'])], controller.getUsers);
+router.get('/patients', [authMiddleware, roleMiddleware(['PSYCHOLOGISTS', 'ADMIN'])], controller.getPatients);
+router.get('/psychologists', [authMiddleware, roleMiddleware(['PATIENTS', 'ADMIN'])], controller.getPsychologist);
 
 export default router;
