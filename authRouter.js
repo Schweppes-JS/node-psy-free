@@ -24,8 +24,12 @@ router.post(
   controller.registration
 );
 router.post('/login', controller.login);
-router.get('/users', [authMiddleware, roleMiddleware(['ADMIN'])], controller.getUsers);
-router.get('/patients', [authMiddleware, roleMiddleware(['PSYCHOLOGISTS', 'ADMIN'])], controller.getPatients);
+router.post('/logout', controller.logout);
+
 router.get('/psychologists', [authMiddleware, roleMiddleware(['PATIENTS', 'ADMIN'])], controller.getPsychologist);
+router.get('/patients', [authMiddleware, roleMiddleware(['PSYCHOLOGISTS', 'ADMIN'])], controller.getPatients);
+router.get('/users', [authMiddleware, roleMiddleware(['ADMIN'])], controller.getUsers);
+router.get('/activate/:link', controller.activate);
+router.get('/refresh', controller.refresh);
 
 export default router;

@@ -69,6 +69,21 @@ class authController {
     }
   }
 
+  async logout(req, res) {
+    try {
+    } catch (e) {}
+  }
+
+  async activate(req, res) {
+    try {
+    } catch (e) {}
+  }
+
+  async refresh(req, res) {
+    try {
+    } catch (e) {}
+  }
+
   async getUsers(req, res) {
     try {
       const patients = await Patient.find();
