@@ -2,13 +2,15 @@ import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 
+import tokenService from './service/token-service.js';
 import Psychologist from './models/Psychologist.cjs';
+import { JWT_ACCESS_SECRET } from './config.js';
+import { UserDto } from './dtos/user-dto.js';
 import Patient from './models/Patient.cjs';
 import Admin from './models/Admin.cjs';
 import Role from './models/Role.cjs';
-import { secret } from './config.js';
 
-const getAccessToken = (id, role) => jwt.sign({ id, role }, secret, { expiresIn: '24h' });
+const getAccessToken = (id, role) => jwt.sign({ id, role }, JWT_ACCESS_SECRET, { expiresIn: '24h' });
 const checkEmail = async (email) =>
   Promise.race([await Patient.findOne({ email }), await Psychologist.findOne({ email }), await Admin.findOne({ email })]).then(
     (user) => user
@@ -30,8 +32,12 @@ class authController {
           email: req.body.email,
           roles: [psychologistRole.value]
         });
+        const userDto = new UserDto(psychologist);
+        const tokens = tokenService.generateTokens({ ...userDto });
+        tokenService.saveToken(userDto.id, tokens.refreshToken);
         await psychologist.save();
-        return res.status(200).json(psychologist);
+        res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+        return res.status(200).json({ ...userDto, ...tokens });
       } else {
         const patientName = await Patient.findOne({ nickname: req.body.nickname });
         if (patientName) return res.status(400).json({ message: 'User with this nickname already registered' });
@@ -44,8 +50,12 @@ class authController {
           email: req.body.email,
           roles: [patientRole.value]
         });
+        const userDto = new UserDto(patient);
+        const tokens = tokenService.generateTokens({ ...userDto });
+        tokenService.saveToken(userDto.id, tokens.refreshToken);
         await patient.save();
-        return res.status(200).json(patient);
+        res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+        return res.status(200).json({ ...userDto, ...tokens });
       }
     } catch (e) {
       console.log(e);

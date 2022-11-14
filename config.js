@@ -1,1 +1,3 @@
-export const secret = 'SECRET_KEY_RANDOM';
+export const JWT_ACCESS_SECRET = 'ACCESS_SECRET_KEY';
+export const JWT_REFRESH_SECRET = 'REFRESH_SECRET_KEY';
+

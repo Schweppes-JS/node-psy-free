@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
-import { secret } from '../config.js';
+import { JWT_ACCESS_SECRET } from '../config.js';
 
 const roleMiddleware = (roles) => (req, res, next) => {
   if (req.method === 'OPTIONS') next();
   try {
     const token = req.headers.authorization.split(' ')[1];
     if (!token) return res.status(403).json({ message: 'user not authenticated' });
-    const { role: userRoles } = jwt.verify(token, secret);
+    const { role: userRoles } = jwt.verify(token, JWT_ACCESS_SECRET);
     const hasRole = userRoles?.some((role) => roles.includes(role));
     if (!hasRole) return res.status(403).json({ message: 'you do not have permission' });
     next();
